@@ -5,6 +5,7 @@ import s "core:strings"
 import "core:fmt"
 import "vendor:glfw"
 import "core:c"
+import fp "core:path/filepath"
 import gl "vendor:OpenGL"
 
 GL_MAJOR_VERSION : c.int : 3
@@ -96,6 +97,9 @@ PrintProgramErrorLog :: proc(program : u32) {
 }
 
 Initialize :: proc(program, vao, index_buffer : ^u32) {
+  // Load OBJ
+  obj, ok := parse_obj(fp.join("obj", "sword", "Sword.obj"));
+
   // Vertex shader
   vs_code := GetShaderCode("vs.hlsl")
   vs := gl.CreateShader(gl.VERTEX_SHADER)
