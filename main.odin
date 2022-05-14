@@ -133,7 +133,7 @@ Initialize :: proc(program, vao, index_buffer : ^u32) {
   gl.GenBuffers(1, &vbo)
   gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
 
-  gl.BufferData(gl.ARRAY_BUFFER, size_of(Vector3f) * len(obj.vertexes), &obj.vertexes, gl.STATIC_DRAW)
+  gl.BufferData(gl.ARRAY_BUFFER, size_of(Vector3f) * len(obj.vertexes), &obj.vertexes[0], gl.STATIC_DRAW)
 
   // Vertex attributes
   void : uintptr
@@ -150,7 +150,7 @@ Initialize :: proc(program, vao, index_buffer : ^u32) {
 
   gl.GenBuffers(1, index_buffer)
   gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer^)
-  gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, size_of(int) * len(indices), &indices, gl.STATIC_DRAW)
+  gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, size_of(u32) * len(indices), &indices[0], gl.STATIC_DRAW)
 }
 
 Update :: proc() {
