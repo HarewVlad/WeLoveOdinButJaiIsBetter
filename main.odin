@@ -98,7 +98,7 @@ PrintProgramErrorLog :: proc(program : u32) {
 
 Initialize :: proc(program, vao, index_buffer : ^u32) {
   // Load OBJ
-  obj, ok := parse_obj(fp.join("obj", "sword", "Sword.obj"));
+  obj, ok := parse_obj(fp.join("obj", "notebook", "Lowpoly_Notebook_2.obj"));
 
   // Vertex shader
   vs_code := GetShaderCode("vs.hlsl")
@@ -129,16 +129,11 @@ Initialize :: proc(program, vao, index_buffer : ^u32) {
   gl.BindVertexArray(vao^)
 
   // Vertex buffer
-  vertices := [9]f32 {
-    -0.5, -0.5, 0.0, 
-    0.5, -0.5, 0.0, 
-    0.0, 0.5, 0.0,
-  }
-
   vbo : u32;
   gl.GenBuffers(1, &vbo)
   gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-  gl.BufferData(gl.ARRAY_BUFFER, size_of(vertices), &vertices, gl.STATIC_DRAW)
+
+  gl.BufferData(gl.ARRAY_BUFFER, size_of(Vector3f) * len(obj.vertexes), &obj.vertexes, gl.STATIC_DRAW)
 
   // Vertex attributes
   void : uintptr
@@ -146,13 +141,16 @@ Initialize :: proc(program, vao, index_buffer : ^u32) {
   gl.EnableVertexAttribArray(0)
 
   // Index buffer
-  indices := [3]u32 {
-    0, 1, 2,
+  indices : [dynamic]u32
+  for face in obj.faces {
+    for id in face.vertex_ids {
+      append(&indices, (u32)(id - 1))
+    }
   }
 
   gl.GenBuffers(1, index_buffer)
   gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer^)
-  gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, size_of(indices), &indices, gl.STATIC_DRAW)
+  gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, size_of(int) * len(indices), &indices, gl.STATIC_DRAW)
 }
 
 Update :: proc() {
@@ -166,5 +164,5 @@ Render :: proc(program, vao, index_buffer : u32) {
   gl.UseProgram(program);
   gl.BindVertexArray(vao);
   gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer)
-  gl.DrawElements(gl.TRIANGLES, 3, gl.UNSIGNED_INT, nil)
+  gl.DrawElements(gl.TRIANGLES, 599, gl.UNSIGNED_INT, nil)
 }
