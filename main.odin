@@ -65,19 +65,6 @@ main :: proc() {
   }
 }
 
-GetShaderCode :: proc(filename : string) -> cstring {
-  bytes, success := os.read_entire_file_from_filename(filename)
-
-  if !success {
-    fmt.println("Failed to call os.read_entire_file_from_filename()")
-    return ""
-  }
-
-  string := s.clone_from_bytes(bytes)
-
-  return s.clone_to_cstring(string)
-}
-
 PrintShaderErrorLog :: proc(name : string, shader : u32) {
   result : i32
   gl.GetShaderiv(shader, gl.COMPILE_STATUS, &result)
@@ -101,13 +88,13 @@ Initialize :: proc(program, vao, index_buffer : ^u32) {
   obj, ok := parse_obj(fp.join("obj", "notebook", "Lowpoly_Notebook_2.obj"));
 
   // Vertex shader
-  vs_code := GetShaderCode("vs.hlsl")
+  vs_code := cstring(#load("vs.hlsl"))
   vs := gl.CreateShader(gl.VERTEX_SHADER)
   gl.ShaderSource(vs, 1, &vs_code, nil)
   gl.CompileShader(vs)
 
   // Fragment shader
-  fs_code := GetShaderCode("fs.hlsl")
+  fs_code := cstring(#load("fs.hlsl"))
   fs := gl.CreateShader(gl.FRAGMENT_SHADER)
   gl.ShaderSource(fs, 1, &fs_code, nil)
   gl.CompileShader(fs)
