@@ -16,9 +16,9 @@ Face :: struct {
 }
 
 Obj :: struct {
-    vertexes: [dynamic] Vector3f,
-    texture_vertexes: [dynamic] Vector2f,
-    normal_vertexes:  [dynamic] Vector3f,
+    vertices: [dynamic] Vector3f,
+    texture_vertices: [dynamic] Vector2f,
+    normal_vertices:  [dynamic] Vector3f,
     faces: [dynamic] ^Face,
 }
 
@@ -62,19 +62,19 @@ parse_obj :: proc(filename: string) -> (result: ^Obj, sucess: bool) {
             vec, ok := parse_Vector3f(line_array[1:]);
             if !ok  { fmt.println("Error reading vertex data!"); };
 
-            append(&result.vertexes, vec);
+            append(&result.vertices, vec);
 
         case "vt":
             vec, ok := parse_Vector2f(line_array[1:]);
             if !ok  { fmt.println("Error reading vertex texture data!"); };
 
-            append(&result.texture_vertexes, vec);
+            append(&result.texture_vertices, vec);
 
         case "vn":
             vec, ok := parse_Vector3f(line_array[1:]);
             if !ok  { fmt.println("Error reading vertex normals data!"); };
 
-            append(&result.normal_vertexes, vec);
+            append(&result.normal_vertices, vec);
 
         case "f":
             face := new(Face);
