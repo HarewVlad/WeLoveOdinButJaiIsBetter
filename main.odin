@@ -51,14 +51,14 @@ main :: proc() {
 
   gl.load_up_to(int(GL_MAJOR_VERSION), GL_MINOR_VERSION, glfw.gl_set_proc_address)
 
-  program, vao : u32;
-  Initialize(&program, &vao);
+  program, vao, index_buffer : u32;
+  Initialize(&program, &vao, &index_buffer);
 
   for (!glfw.WindowShouldClose(window) && IsRunning) {
     glfw.PollEvents()
 
     Update();
-    Render(program, vao);
+    Render(program, vao, index_buffer);
 
     glfw.SwapBuffers((window))
   }
@@ -95,7 +95,7 @@ PrintProgramErrorLog :: proc(program : u32) {
   }
 }
 
-Initialize :: proc(program, vao : ^u32) {
+Initialize :: proc(program, vao, index_buffer : ^u32) {
   // Vertex shader
   vs_code := GetShaderCode("vs.hlsl")
   vs := gl.CreateShader(gl.VERTEX_SHADER)
@@ -140,17 +140,27 @@ Initialize :: proc(program, vao : ^u32) {
   void : uintptr
   gl.VertexAttribPointer(0, 3, gl.FLOAT, gl.FALSE, 3 * size_of(f32), void)
   gl.EnableVertexAttribArray(0)
+
+  // Index buffer
+  indices := [3]u32 {
+    0, 1, 2,
+  }
+
+  gl.GenBuffers(1, index_buffer)
+  gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer^)
+  gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, size_of(indices), &indices, gl.STATIC_DRAW)
 }
 
 Update :: proc() {
   
 }
 
-Render :: proc(program, vao : u32) {
+Render :: proc(program, vao, index_buffer : u32) {
   gl.ClearColor(0.3, 0.3, 0.3, 1)
   gl.Clear(gl.COLOR_BUFFER_BIT)
 
   gl.UseProgram(program);
   gl.BindVertexArray(vao);
-  gl.DrawArrays(gl.TRIANGLES, 0, 3);
+  gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer)
+  gl.DrawElements(gl.TRIANGLES, 3, gl.UNSIGNED_INT, nil)
 }
