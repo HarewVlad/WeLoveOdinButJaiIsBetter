@@ -52,14 +52,15 @@ main :: proc() {
 
   gl.load_up_to(int(GL_MAJOR_VERSION), GL_MINOR_VERSION, glfw.gl_set_proc_address)
 
-  program, vao, index_buffer : u32;
-  Initialize(&program, &vao, &index_buffer);
+  program, vao : u32
+  index_buffer_data : IndexBufferData
+  Initialize(&program, &vao, &index_buffer_data)
 
   for (!glfw.WindowShouldClose(window) && IsRunning) {
     glfw.PollEvents()
 
-    Update();
-    Render(program, vao, index_buffer);
+    Update()
+    Render(program, vao, index_buffer_data)
 
     glfw.SwapBuffers((window))
   }
@@ -83,7 +84,12 @@ PrintProgramErrorLog :: proc(program : u32) {
   }
 }
 
-Initialize :: proc(program, vao, index_buffer : ^u32) {
+IndexBufferData :: struct {
+  id : u32,
+  count : i32,
+}
+
+Initialize :: proc(program, vao : ^u32, index_buffer_data : ^IndexBufferData) {
   // Load OBJ
   obj, ok := parse_obj(fp.join("obj", "notebook", "Lowpoly_Notebook_2.obj"));
 
@@ -135,21 +141,48 @@ Initialize :: proc(program, vao, index_buffer : ^u32) {
     }
   }
 
-  gl.GenBuffers(1, index_buffer)
-  gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer^)
+  index_buffer_data.count = cast(i32)len(indices);
+
+  gl.GenBuffers(1, &index_buffer_data.id)
+  gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer_data.id)
   gl.BufferData(gl.ELEMENT_ARRAY_BUFFER, size_of(u32) * len(indices), &indices[0], gl.STATIC_DRAW)
+}
+
+mat4 :: distinct matrix[4, 4]f32
+
+LookAtRH :: proc(eye, target, up : Vector3f) -> mat4 {
+  result : mat4
+
+  
+
+  return result
+}
+
+Test :: proc() {
+  identity := mat4 {
+    1, 0, 0, 0,
+    0, 1, 0, 0,
+    0, 0, 1, 0,
+    0, 0, 0, 1,
+  }
+
+  // Model
+  model := identity
+  
+  // View
+
 }
 
 Update :: proc() {
   
 }
 
-Render :: proc(program, vao, index_buffer : u32) {
+Render :: proc(program, vao : u32, index_buffer_data : IndexBufferData) {
   gl.ClearColor(0.3, 0.3, 0.3, 1)
   gl.Clear(gl.COLOR_BUFFER_BIT)
 
   gl.UseProgram(program);
   gl.BindVertexArray(vao);
-  gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer)
-  gl.DrawElements(gl.TRIANGLES, 599, gl.UNSIGNED_INT, nil)
+  gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, index_buffer_data.id)
+  gl.DrawElements(gl.TRIANGLES, index_buffer_data.count, gl.UNSIGNED_INT, nil)
 }
